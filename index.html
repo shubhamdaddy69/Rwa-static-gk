@@ -670,8 +670,8 @@ const MOCKS_CONFIG = Array.from({length: 140}, (_, i) => {
   const id = i + 1;
   return {
     id,
-    active: id <= 10,
-    file: id <= 10 ? `${id}.html` : null
+    active: id <= 140,
+    file: id <= 140 ? `${id}.html` : null
   };
 });
 
