@@ -1,0 +1,87 @@
+{
+  "title": "Mock 1 — SSC CGL Tier I",
+  "duration_minutes": 60,
+  "sections": [
+    {
+      "name": "General Intelligence & Reasoning",
+      "positive_marks": 2,
+      "negative_marks": 0.5,
+      "questions": [
+        {
+          "question": "In a certain code language, 'MANGO' is written as 'NZMHP'. How will 'GRAPE' be written in that code?",
+          "options": ["HSRBF", "HQZOD", "IRZCF", "HSBQF"],
+          "correct_option": 0,
+          "explanation": "Each letter is shifted by +1 position in the alphabet. M→N, A→Z(using reverse), N→M... Apply the same pattern."
+        },
+        {
+          "question": "Arrange the following in logical order:<br>1. Key 2. Lock 3. Door 4. Room 5. House",
+          "options": ["1, 2, 3, 4, 5", "1, 3, 2, 4, 5", "5, 4, 3, 2, 1", "2, 1, 3, 4, 5"],
+          "correct_option": 0,
+          "explanation": "Logical sequence: Key → Lock → Door → Room → House. A key opens a lock, which opens a door, leading to a room, which is part of a house."
+        }
+      ]
+    },
+    {
+      "name": "Quantitative Aptitude",
+      "positive_marks": 2,
+      "negative_marks": 0.5,
+      "questions": [
+        {
+          "question": "The ratio of the ages of A and B is 3:5. After 6 years, the ratio will be 3:4. What is the present age of B?",
+          "options": ["10 years", "15 years", "20 years", "25 years"],
+          "correct_option": 0,
+          "explanation": "Let ages be 3x and 5x. After 6 years: (3x+6)/(5x+6) = 3/4. Solving: 12x+24 = 15x+18 → 3x = 6 → x = 2. B's age = 5×2 = 10 years."
+        },
+        {
+          "question": "A shopkeeper sells an article for ₹1,200 at a profit of 20%. What is the cost price?",
+          "options": ["₹1,000", "₹960", "₹1,100", "₹980"],
+          "correct_option": 0,
+          "explanation": "SP = CP × (1 + profit%). 1200 = CP × 1.20. CP = 1200 / 1.20 = ₹1,000."
+        }
+      ]
+    },
+    {
+      "name": "English Language",
+      "positive_marks": 2,
+      "negative_marks": 0.5,
+      "questions": [
+        {
+          "question": "Choose the correct meaning of the idiom: <strong>'A bolt from the blue'</strong>",
+          "options": [
+            "A complete surprise",
+            "Lightning strike",
+            "Bad weather",
+            "A loud noise"
+          ],
+          "correct_option": 0,
+          "explanation": "'A bolt from the blue' means something unexpected or surprising that happens suddenly, like a bolt of lightning from a clear blue sky."
+        },
+        {
+          "question": "Select the most appropriate antonym of the word <strong>VERBOSE</strong>.",
+          "options": ["Loquacious", "Concise", "Wordy", "Elaborate"],
+          "correct_option": 1,
+          "explanation": "Verbose means using more words than needed. Its antonym is 'Concise', meaning giving a lot of information clearly in few words."
+        }
+      ]
+    },
+    {
+      "name": "General Awareness",
+      "positive_marks": 2,
+      "negative_marks": 0.5,
+      "questions": [
+        {
+          "question": "Who was the first Indian to go to space?",
+          "options": ["Kalpana Chawla", "Rakesh Sharma", "Sunita Williams", "Ravish Malhotra"],
+          "correct_option": 1,
+          "explanation": "Rakesh Sharma was the first Indian to travel to space. He flew aboard Soviet spacecraft Soyuz T-11 on April 3, 1984."
+        },
+        {
+          "question": "Which river is known as the 'Sorrow of Bihar'?",
+          "options": ["Ganga", "Son", "Kosi", "Gandak"],
+          "correct_option": 2,
+          "explanation": "The Kosi river is known as the 'Sorrow of Bihar' due to its frequent flooding and course-changing nature that causes massive destruction in Bihar."
+        }
+      ]
+    }
+  ]
+}

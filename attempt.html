@@ -1,0 +1,1302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Attempt Mock — SSC Scholars</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,400&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #c9a84c;
+    --gold-light: #e8c96a;
+    --gold-dim: #8a6f30;
+    --bg: #07080f;
+    --bg2: #0d0f1c;
+    --surface: #141830;
+    --surface2: #1a2040;
+    --border: rgba(201,168,76,0.15);
+    --border-active: rgba(201,168,76,0.5);
+    --text: #d0d4e8;
+    --text-dim: #6a7099;
+    --green: #4caf7d;
+    --red: #e05c5c;
+    --blue: #5c9ae0;
+    --orange: #e08c3c;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Crimson Pro', Georgia, serif;
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(201,168,76,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(201,168,76,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ===== TOP BAR ===== */
+  .topbar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 56px;
+    background: rgba(7,8,15,0.95);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    z-index: 100;
+  }
+
+  .topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .back-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    text-decoration: none;
+    letter-spacing: 0.1em;
+    transition: color 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .back-btn:hover { color: var(--gold); }
+
+  .mock-title {
+    font-family: 'Cinzel', serif;
+    font-size: 14px;
+    color: var(--gold);
+    letter-spacing: 0.1em;
+  }
+
+  .topbar-center {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .timer {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 20px;
+    color: var(--gold-light);
+    letter-spacing: 0.08em;
+    font-weight: 400;
+  }
+  .timer.warning { color: var(--orange); }
+  .timer.danger { color: var(--red); animation: pulse 1s infinite; }
+
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+
+  .topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .q-progress {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+  }
+
+  .submit-btn {
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    padding: 8px 18px;
+    background: rgba(201,168,76,0.1);
+    border: 1px solid var(--border-active);
+    border-radius: 4px;
+    color: var(--gold);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .submit-btn:hover {
+    background: rgba(201,168,76,0.2);
+    box-shadow: 0 0 15px rgba(201,168,76,0.2);
+  }
+
+  /* ===== MAIN LAYOUT ===== */
+  .main-layout {
+    display: flex;
+    padding-top: 56px;
+    min-height: 100vh;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ===== SIDEBAR ===== */
+  .sidebar {
+    width: 260px;
+    min-height: calc(100vh - 56px);
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    padding: 20px 16px;
+    position: sticky;
+    top: 56px;
+    height: calc(100vh - 56px);
+    overflow-y: auto;
+    flex-shrink: 0;
+  }
+
+  .sidebar-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.3em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* Legend */
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 14px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: var(--text-dim);
+    letter-spacing: 0.05em;
+  }
+  .legend-dot {
+    width: 10px; height: 10px;
+    border-radius: 2px;
+  }
+  .dot-answered { background: var(--green); }
+  .dot-marked { background: var(--orange); }
+  .dot-visited { background: var(--surface2); border: 1px solid var(--border-active); }
+  .dot-unanswered { background: var(--surface); border: 1px solid var(--border); }
+
+  /* Section tabs */
+  .section-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-bottom: 14px;
+  }
+  .sec-tab {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    padding: 4px 10px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all 0.2s;
+    background: transparent;
+    text-transform: uppercase;
+  }
+  .sec-tab.active, .sec-tab:hover {
+    border-color: var(--border-active);
+    color: var(--gold);
+    background: rgba(201,168,76,0.05);
+  }
+
+  /* Question palette */
+  .q-palette {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 5px;
+  }
+
+  .q-dot {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-dim);
+  }
+  .q-dot:hover { border-color: var(--gold-dim); color: var(--gold); }
+  .q-dot.current { border-color: var(--gold); color: var(--gold-light); box-shadow: 0 0 8px rgba(201,168,76,0.3); }
+  .q-dot.answered { background: rgba(76,175,125,0.2); border-color: var(--green); color: var(--green); }
+  .q-dot.marked { background: rgba(224,140,60,0.15); border-color: var(--orange); color: var(--orange); }
+  .q-dot.marked.answered { background: rgba(224,140,60,0.25); }
+  .q-dot.visited { background: rgba(92,154,224,0.1); }
+
+  /* Section stats */
+  .section-stats {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+  }
+  .sec-stat-row {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    padding: 3px 0;
+    color: var(--text-dim);
+  }
+  .sec-stat-row span:last-child { color: var(--gold); }
+
+  /* ===== QUESTION AREA ===== */
+  .question-area {
+    flex: 1;
+    padding: 32px;
+    max-width: 900px;
+  }
+
+  /* Section banner */
+  .section-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 20px;
+    margin-bottom: 24px;
+  }
+
+  .section-banner .sec-name {
+    font-family: 'Cinzel', serif;
+    font-size: 13px;
+    color: var(--gold);
+    letter-spacing: 0.1em;
+  }
+
+  .marks-info {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+  }
+  .marks-info .pos { color: var(--green); }
+  .marks-info .neg { color: var(--red); }
+
+  /* Question card */
+  .question-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 28px;
+    margin-bottom: 20px;
+    position: relative;
+  }
+
+  .q-number {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.2em;
+    margin-bottom: 16px;
+    text-transform: uppercase;
+  }
+
+  .q-text {
+    font-size: 18px;
+    line-height: 1.7;
+    color: var(--text);
+    margin-bottom: 28px;
+    font-weight: 400;
+  }
+
+  /* Image in question */
+  .q-text img { max-width: 100%; border-radius: 6px; margin: 10px 0; }
+
+  /* Options */
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .option {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 14px 18px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--bg2);
+  }
+
+  .option:hover {
+    border-color: var(--gold-dim);
+    background: rgba(201,168,76,0.04);
+  }
+
+  .option.selected {
+    border-color: var(--gold);
+    background: rgba(201,168,76,0.08);
+  }
+
+  .option-key {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text-dim);
+    flex-shrink: 0;
+    margin-top: 1px;
+    transition: all 0.2s;
+  }
+
+  .option.selected .option-key {
+    border-color: var(--gold);
+    color: var(--gold);
+    background: rgba(201,168,76,0.1);
+  }
+
+  .option-text {
+    font-size: 16px;
+    line-height: 1.5;
+  }
+
+  /* Result mode */
+  .option.correct {
+    border-color: var(--green);
+    background: rgba(76,175,125,0.08);
+  }
+  .option.correct .option-key { border-color: var(--green); color: var(--green); }
+  .option.wrong {
+    border-color: var(--red);
+    background: rgba(224,92,92,0.08);
+  }
+  .option.wrong .option-key { border-color: var(--red); color: var(--red); }
+
+  .explanation {
+    margin-top: 16px;
+    padding: 14px 18px;
+    background: rgba(201,168,76,0.06);
+    border: 1px solid rgba(201,168,76,0.2);
+    border-radius: 8px;
+    font-size: 15px;
+    line-height: 1.6;
+    color: #b0b8d0;
+    display: none;
+  }
+  .explanation.show { display: block; }
+  .explanation strong { color: var(--gold); }
+
+  /* Action buttons */
+  .q-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 8px;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    padding: 9px 18px;
+    border-radius: 5px;
+    cursor: pointer;
+    border: 1px solid;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+
+  .btn-clear {
+    border-color: var(--border);
+    color: var(--text-dim);
+    background: transparent;
+  }
+  .btn-clear:hover { border-color: var(--red); color: var(--red); }
+
+  .btn-mark {
+    border-color: rgba(224,140,60,0.4);
+    color: var(--orange);
+    background: transparent;
+  }
+  .btn-mark:hover, .btn-mark.active { background: rgba(224,140,60,0.1); }
+
+  .btn-prev {
+    border-color: var(--border);
+    color: var(--text-dim);
+    background: transparent;
+  }
+  .btn-prev:hover { border-color: var(--border-active); color: var(--text); }
+
+  .btn-next {
+    border-color: var(--border-active);
+    color: var(--gold);
+    background: rgba(201,168,76,0.05);
+    margin-left: auto;
+  }
+  .btn-next:hover { background: rgba(201,168,76,0.15); }
+
+  /* ===== RESULT SCREEN ===== */
+  #resultScreen {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    z-index: 200;
+    overflow-y: auto;
+    padding: 40px 20px;
+  }
+
+  #resultScreen.show { display: block; }
+
+  .result-wrap {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .result-header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  .result-header h2 {
+    font-family: 'Cinzel', serif;
+    font-size: 28px;
+    color: var(--gold-light);
+    letter-spacing: 0.12em;
+    margin-bottom: 8px;
+  }
+
+  .result-header p {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+  }
+
+  .score-ring {
+    display: flex;
+    justify-content: center;
+    margin: 32px 0;
+  }
+
+  .ring-container {
+    position: relative;
+    width: 160px;
+    height: 160px;
+  }
+
+  .ring-container svg {
+    transform: rotate(-90deg);
+  }
+
+  .ring-center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ring-score {
+    font-family: 'Cinzel', serif;
+    font-size: 36px;
+    color: var(--gold-light);
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .ring-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: var(--text-dim);
+    letter-spacing: 0.2em;
+    margin-top: 4px;
+  }
+
+  .result-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+
+  .result-stat {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+  }
+
+  .result-stat .val {
+    font-family: 'Cinzel', serif;
+    font-size: 22px;
+    font-weight: 700;
+  }
+
+  .result-stat .lbl {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: var(--text-dim);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  .val.green { color: var(--green); }
+  .val.red { color: var(--red); }
+  .val.orange { color: var(--orange); }
+  .val.blue { color: var(--blue); }
+  .val.gold { color: var(--gold-light); }
+
+  /* Section-wise table */
+  .result-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 24px;
+    font-size: 14px;
+  }
+
+  .result-table th {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .result-table td {
+    padding: 12px 14px;
+    border-bottom: 1px solid rgba(201,168,76,0.06);
+  }
+
+  .result-table tr:last-child td { border-bottom: none; }
+  .result-table tr:hover td { background: rgba(201,168,76,0.02); }
+
+  .result-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .btn-lg {
+    font-family: 'Cinzel', serif;
+    font-size: 12px;
+    letter-spacing: 0.15em;
+    padding: 12px 28px;
+    border-radius: 6px;
+    cursor: pointer;
+    border: 1px solid;
+    transition: all 0.2s;
+  }
+
+  .btn-review {
+    border-color: var(--border-active);
+    color: var(--gold);
+    background: rgba(201,168,76,0.06);
+  }
+  .btn-review:hover { background: rgba(201,168,76,0.15); }
+
+  .btn-home {
+    border-color: var(--border);
+    color: var(--text-dim);
+    background: transparent;
+  }
+  .btn-home:hover { border-color: var(--border-active); color: var(--text); }
+
+  /* Loading */
+  #loadingScreen {
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 300;
+  }
+
+  .loader-text {
+    font-family: 'Cinzel', serif;
+    font-size: 16px;
+    color: var(--gold);
+    letter-spacing: 0.2em;
+    margin-bottom: 20px;
+  }
+
+  .loader-bar {
+    width: 200px;
+    height: 2px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .loader-fill {
+    height: 100%;
+    background: var(--gold);
+    width: 0%;
+    animation: load 1.5s ease forwards;
+  }
+
+  @keyframes load { to { width: 100%; } }
+
+  /* Confirm dialog */
+  #confirmDialog {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(7,8,15,0.9);
+    z-index: 400;
+    align-items: center;
+    justify-content: center;
+  }
+  #confirmDialog.show { display: flex; }
+
+  .dialog-box {
+    background: var(--surface2);
+    border: 1px solid var(--border-active);
+    border-radius: 10px;
+    padding: 32px;
+    max-width: 420px;
+    width: 90%;
+    text-align: center;
+  }
+
+  .dialog-box h3 {
+    font-family: 'Cinzel', serif;
+    font-size: 18px;
+    color: var(--gold);
+    letter-spacing: 0.1em;
+    margin-bottom: 12px;
+  }
+
+  .dialog-box p {
+    font-size: 15px;
+    color: var(--text-dim);
+    margin-bottom: 24px;
+    line-height: 1.6;
+  }
+
+  .dialog-stats {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    margin-bottom: 24px;
+  }
+
+  .d-stat {
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .d-stat .v { font-size: 20px; }
+  .d-stat .l { font-size: 9px; color: var(--text-dim); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 2px; }
+
+  .dialog-btns { display: flex; gap: 10px; justify-content: center; }
+
+  @media (max-width: 768px) {
+    .sidebar { display: none; }
+    .question-area { padding: 20px 16px; }
+    .result-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<div id="loadingScreen">
+  <div class="loader-text">Loading Mock...</div>
+  <div class="loader-bar"><div class="loader-fill"></div></div>
+</div>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-left">
+    <a class="back-btn" href="index.html">← Home</a>
+    <div class="mock-title" id="mockTitle">Mock</div>
+  </div>
+  <div class="topbar-center">
+    <div class="timer" id="timer">60:00</div>
+  </div>
+  <div class="topbar-right">
+    <div class="q-progress" id="qProgress">Q 1 / 100</div>
+    <button class="submit-btn" onclick="openConfirm()">Submit</button>
+  </div>
+</div>
+
+<div class="main-layout">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-title">Question Palette</div>
+
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot dot-answered"></div> Answered</div>
+      <div class="legend-item"><div class="legend-dot dot-marked"></div> Marked</div>
+      <div class="legend-item"><div class="legend-dot dot-visited"></div> Visited</div>
+      <div class="legend-item"><div class="legend-dot dot-unanswered"></div> Not visited</div>
+    </div>
+
+    <div class="section-tabs" id="sectionTabs"></div>
+    <div class="q-palette" id="qPalette"></div>
+
+    <div class="section-stats" id="sectionStats"></div>
+  </div>
+
+  <!-- QUESTION AREA -->
+  <div class="question-area" id="questionArea">
+    <div class="section-banner" id="sectionBanner">
+      <div class="sec-name" id="secName">Section</div>
+      <div class="marks-info">+<span class="pos" id="posMarks">2</span> / <span class="neg" id="negMarks">−0.5</span></div>
+    </div>
+
+    <div class="question-card">
+      <div class="q-number" id="qNumber">Question 1 of 100</div>
+      <div class="q-text" id="qText">Loading...</div>
+      <div class="options" id="optionsContainer"></div>
+      <div class="explanation" id="explanation"></div>
+    </div>
+
+    <div class="q-actions">
+      <button class="btn btn-clear" onclick="clearAnswer()">Clear</button>
+      <button class="btn btn-mark" id="markBtn" onclick="toggleMark()">Mark & Next</button>
+      <button class="btn btn-prev" onclick="goToQ(currentQ - 1)">← Prev</button>
+      <button class="btn btn-next" onclick="goToQ(currentQ + 1)">Save & Next →</button>
+    </div>
+  </div>
+</div>
+
+<!-- RESULT SCREEN -->
+<div id="resultScreen">
+  <div class="result-wrap">
+    <div class="result-header">
+      <h2>Result</h2>
+      <p id="resultMockName" style="letter-spacing:0.1em; margin-top:6px; font-size:12px;"></p>
+    </div>
+
+    <div class="score-ring">
+      <div class="ring-container">
+        <svg width="160" height="160" viewBox="0 0 160 160">
+          <circle cx="80" cy="80" r="64" fill="none" stroke="rgba(201,168,76,0.1)" stroke-width="10"/>
+          <circle cx="80" cy="80" r="64" fill="none" stroke="#c9a84c" stroke-width="10"
+                  stroke-linecap="round" stroke-dasharray="402" stroke-dashoffset="402" id="ringCircle"/>
+        </svg>
+        <div class="ring-center">
+          <div class="ring-score" id="ringScore">0</div>
+          <div class="ring-label">Score</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="result-grid">
+      <div class="result-stat">
+        <div class="val green" id="rCorrect">0</div>
+        <div class="lbl">Correct</div>
+      </div>
+      <div class="result-stat">
+        <div class="val red" id="rWrong">0</div>
+        <div class="lbl">Wrong</div>
+      </div>
+      <div class="result-stat">
+        <div class="val orange" id="rSkipped">0</div>
+        <div class="lbl">Skipped</div>
+      </div>
+      <div class="result-stat">
+        <div class="val gold" id="rScore">0</div>
+        <div class="lbl">Total Score</div>
+      </div>
+      <div class="result-stat">
+        <div class="val blue" id="rAccuracy">0%</div>
+        <div class="lbl">Accuracy</div>
+      </div>
+      <div class="result-stat">
+        <div class="val" id="rTime" style="color:var(--text)">—</div>
+        <div class="lbl">Time Taken</div>
+      </div>
+    </div>
+
+    <table class="result-table">
+      <thead>
+        <tr>
+          <th>Section</th>
+          <th>Questions</th>
+          <th>Correct</th>
+          <th>Wrong</th>
+          <th>Score</th>
+          <th>Accuracy</th>
+        </tr>
+      </thead>
+      <tbody id="sectionTable"></tbody>
+    </table>
+
+    <div class="result-actions">
+      <button class="btn-lg btn-review" onclick="reviewMode()">Review Answers</button>
+      <a class="btn-lg btn-home" href="performance.html">View Performance</a>
+      <a class="btn-lg btn-home" href="index.html">Home</a>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM SUBMIT -->
+<div id="confirmDialog">
+  <div class="dialog-box">
+    <h3>Submit Test?</h3>
+    <p>Once submitted, you cannot change your answers.</p>
+    <div class="dialog-stats">
+      <div class="d-stat"><div class="v green" id="dAnswered">0</div><div class="l">Answered</div></div>
+      <div class="d-stat"><div class="v orange" id="dMarked">0</div><div class="l">Marked</div></div>
+      <div class="d-stat"><div class="v red" id="dUnanswered">0</div><div class="l">Skipped</div></div>
+    </div>
+    <div class="dialog-btns">
+      <button class="btn-lg btn-home" onclick="closeConfirm()">Cancel</button>
+      <button class="btn-lg btn-review" onclick="submitTest()">Submit</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// =====================================================
+// STATE
+// =====================================================
+let mockData = null;
+let allQuestions = []; // flat list with sectionIndex
+let currentQ = 0;
+let answers = {}; // { qIndex: optionIndex }
+let marked = new Set();
+let visited = new Set();
+let timerInterval = null;
+let secondsLeft = 3600;
+let submitted = false;
+let reviewModeOn = false;
+let timeTaken = 0;
+let currentSection = 0;
+let sectionFilter = -1; // -1 = all
+
+const params = new URLSearchParams(location.search);
+const mockId = params.get('mock');
+const mockFile = params.get('file');
+
+// =====================================================
+// LOAD MOCK
+// =====================================================
+async function loadMock() {
+  try {
+    const res = await fetch(mockFile || `mocks/mock${mockId}.json`);
+    if (!res.ok) throw new Error('Not found');
+    mockData = await res.json();
+  } catch(e) {
+    // Load demo data if file not found
+    mockData = getDemoMock();
+  }
+
+  document.getElementById('mockTitle').textContent = mockData.title || `Mock ${mockId}`;
+  secondsLeft = (mockData.duration_minutes || 60) * 60;
+
+  // Flatten questions
+  allQuestions = [];
+  mockData.sections.forEach((sec, si) => {
+    sec.questions.forEach((q, qi) => {
+      allQuestions.push({ ...q, sectionIndex: si, sectionName: sec.name,
+        posMarks: sec.positive_marks || 2, negMarks: sec.negative_marks || 0.5 });
+    });
+  });
+
+  // Hide loader
+  document.getElementById('loadingScreen').style.display = 'none';
+  renderSectionTabs();
+  renderPalette();
+  goToQ(0);
+  startTimer();
+}
+
+// =====================================================
+// TIMER
+// =====================================================
+function startTimer() {
+  timerInterval = setInterval(() => {
+    secondsLeft--;
+    timeTaken++;
+    if (secondsLeft <= 0) { clearInterval(timerInterval); submitTest(); return; }
+    const m = Math.floor(secondsLeft / 60);
+    const s = secondsLeft % 60;
+    const el = document.getElementById('timer');
+    el.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    el.className = 'timer' + (secondsLeft < 300 ? ' danger' : secondsLeft < 600 ? ' warning' : '');
+  }, 1000);
+}
+
+// =====================================================
+// RENDER SECTION TABS
+// =====================================================
+function renderSectionTabs() {
+  const tabs = document.getElementById('sectionTabs');
+  tabs.innerHTML = `<button class="sec-tab ${sectionFilter===-1?'active':''}" onclick="filterSection(-1)">All</button>`;
+  mockData.sections.forEach((sec, i) => {
+    tabs.innerHTML += `<button class="sec-tab ${sectionFilter===i?'active':''}" onclick="filterSection(${i})">${sec.name}</button>`;
+  });
+}
+
+function filterSection(idx) {
+  sectionFilter = idx;
+  renderSectionTabs();
+  renderPalette();
+  // Jump to first q of that section
+  if (idx >= 0) {
+    const first = allQuestions.findIndex(q => q.sectionIndex === idx);
+    if (first >= 0) goToQ(first);
+  }
+}
+
+// =====================================================
+// PALETTE
+// =====================================================
+function renderPalette() {
+  const palette = document.getElementById('qPalette');
+  palette.innerHTML = '';
+  let questions = allQuestions;
+  if (sectionFilter >= 0) questions = allQuestions.filter(q => q.sectionIndex === sectionFilter);
+
+  questions.forEach((q, i) => {
+    const realIdx = allQuestions.indexOf(q);
+    const btn = document.createElement('div');
+    btn.className = 'q-dot';
+    btn.textContent = realIdx + 1;
+    if (realIdx === currentQ) btn.classList.add('current');
+    if (answers[realIdx] !== undefined && marked.has(realIdx)) btn.classList.add('marked', 'answered');
+    else if (answers[realIdx] !== undefined) btn.classList.add('answered');
+    else if (marked.has(realIdx)) btn.classList.add('marked');
+    else if (visited.has(realIdx)) btn.classList.add('visited');
+    btn.onclick = () => goToQ(realIdx);
+    palette.appendChild(btn);
+  });
+
+  renderSectionStats();
+}
+
+function renderSectionStats() {
+  const el = document.getElementById('sectionStats');
+  const answered = Object.keys(answers).length;
+  const markedCount = marked.size;
+  const unanswered = allQuestions.length - answered;
+  el.innerHTML = `
+    <div class="sec-stat-row"><span>Total Questions</span><span>${allQuestions.length}</span></div>
+    <div class="sec-stat-row"><span style="color:var(--green)">Answered</span><span>${answered}</span></div>
+    <div class="sec-stat-row"><span style="color:var(--orange)">Marked</span><span>${markedCount}</span></div>
+    <div class="sec-stat-row"><span style="color:var(--text-dim)">Not Attempted</span><span>${unanswered}</span></div>
+  `;
+}
+
+// =====================================================
+// RENDER QUESTION
+// =====================================================
+function goToQ(idx) {
+  if (idx < 0 || idx >= allQuestions.length) return;
+  currentQ = idx;
+  visited.add(idx);
+  const q = allQuestions[idx];
+  const secIdx = q.sectionIndex;
+  const sec = mockData.sections[secIdx];
+
+  document.getElementById('qProgress').textContent = `Q ${idx+1} / ${allQuestions.length}`;
+  document.getElementById('qNumber').textContent = `Question ${idx+1} of ${allQuestions.length}`;
+  document.getElementById('qText').innerHTML = q.question;
+  document.getElementById('secName').textContent = sec.name;
+  document.getElementById('posMarks').textContent = q.posMarks;
+  document.getElementById('negMarks').textContent = q.negMarks;
+
+  const markBtn = document.getElementById('markBtn');
+  markBtn.classList.toggle('active', marked.has(idx));
+
+  // Options
+  const opts = document.getElementById('optionsContainer');
+  const keys = ['A','B','C','D','E'];
+  opts.innerHTML = q.options.map((opt, oi) => {
+    const sel = answers[idx] === oi ? 'selected' : '';
+    return `<div class="option ${sel}" onclick="${submitted ? '' : `selectOption(${oi})`}">
+      <div class="option-key">${keys[oi]}</div>
+      <div class="option-text">${opt}</div>
+    </div>`;
+  }).join('');
+
+  // Explanation (review mode)
+  const expEl = document.getElementById('explanation');
+  if (reviewModeOn && q.explanation) {
+    expEl.innerHTML = `<strong>Explanation:</strong> ${q.explanation}`;
+    expEl.classList.add('show');
+    highlightResult();
+  } else {
+    expEl.classList.remove('show');
+    expEl.innerHTML = '';
+  }
+
+  renderPalette();
+}
+
+function selectOption(oi) {
+  if (submitted) return;
+  answers[currentQ] = oi;
+  goToQ(currentQ); // re-render
+}
+
+function clearAnswer() {
+  if (submitted) return;
+  delete answers[currentQ];
+  goToQ(currentQ);
+}
+
+function toggleMark() {
+  if (submitted) return;
+  if (marked.has(currentQ)) marked.delete(currentQ);
+  else marked.add(currentQ);
+  // Auto advance
+  if (currentQ < allQuestions.length - 1) goToQ(currentQ + 1);
+  else renderPalette();
+}
+
+// =====================================================
+// SUBMIT
+// =====================================================
+function openConfirm() {
+  const answered = Object.keys(answers).length;
+  const markedCount = marked.size;
+  const unanswered = allQuestions.length - answered;
+  document.getElementById('dAnswered').textContent = answered;
+  document.getElementById('dMarked').textContent = markedCount;
+  document.getElementById('dUnanswered').textContent = unanswered;
+  document.getElementById('confirmDialog').classList.add('show');
+}
+
+function closeConfirm() {
+  document.getElementById('confirmDialog').classList.remove('show');
+}
+
+function submitTest() {
+  closeConfirm();
+  clearInterval(timerInterval);
+  submitted = true;
+  timeTaken = (mockData.duration_minutes * 60) - secondsLeft;
+
+  // Calculate score
+  let totalCorrect = 0, totalWrong = 0, totalSkipped = 0, totalScore = 0;
+  const secStats = mockData.sections.map(s => ({ name: s.name, total: s.questions.length, correct: 0, wrong: 0, skipped: 0, score: 0, pm: s.positive_marks || 2, nm: s.negative_marks || 0.5 }));
+
+  allQuestions.forEach((q, idx) => {
+    const ans = answers[idx];
+    const si = q.sectionIndex;
+    if (ans === undefined) {
+      totalSkipped++;
+      secStats[si].skipped++;
+    } else if (ans === q.correct_option) {
+      totalCorrect++;
+      totalScore += q.posMarks;
+      secStats[si].correct++;
+      secStats[si].score += q.posMarks;
+    } else {
+      totalWrong++;
+      totalScore -= q.negMarks;
+      secStats[si].wrong++;
+      secStats[si].score -= q.negMarks;
+    }
+  });
+
+  // Save result
+  const results = JSON.parse(localStorage.getItem('ssc_results') || '{}');
+  results[mockId] = {
+    mockId,
+    mockName: mockData.title,
+    score: Math.round(totalScore * 100) / 100,
+    correct: totalCorrect,
+    wrong: totalWrong,
+    skipped: totalSkipped,
+    total: allQuestions.length,
+    accuracy: Math.round((totalCorrect / allQuestions.length) * 100),
+    timeTaken,
+    sectionStats: secStats,
+    date: new Date().toDateString(),
+    timestamp: Date.now()
+  };
+  localStorage.setItem('ssc_results', JSON.stringify(results));
+
+  showResult(totalCorrect, totalWrong, totalSkipped, totalScore, secStats);
+}
+
+function showResult(correct, wrong, skipped, score, secStats) {
+  document.getElementById('resultScreen').classList.add('show');
+  document.getElementById('resultMockName').textContent = mockData.title;
+
+  document.getElementById('rCorrect').textContent = correct;
+  document.getElementById('rWrong').textContent = wrong;
+  document.getElementById('rSkipped').textContent = skipped;
+  document.getElementById('rScore').textContent = score.toFixed(2);
+  document.getElementById('ringScore').textContent = score.toFixed(0);
+  document.getElementById('rAccuracy').textContent = Math.round((correct/allQuestions.length)*100) + '%';
+
+  const mins = Math.floor(timeTaken / 60);
+  const secs = timeTaken % 60;
+  document.getElementById('rTime').textContent = `${mins}m ${secs}s`;
+
+  // Animate ring
+  const maxScore = allQuestions.length * 2; // approx
+  const pct = Math.max(0, Math.min(1, score / maxScore));
+  const circumference = 402;
+  setTimeout(() => {
+    document.getElementById('ringCircle').style.transition = 'stroke-dashoffset 1.5s ease';
+    document.getElementById('ringCircle').style.strokeDashoffset = circumference - (pct * circumference);
+  }, 100);
+
+  // Section table
+  const tbody = document.getElementById('sectionTable');
+  tbody.innerHTML = secStats.map(s => {
+    const acc = s.total > 0 ? Math.round((s.correct / s.total) * 100) : 0;
+    return `<tr>
+      <td style="color:var(--text)">${s.name}</td>
+      <td style="color:var(--text-dim)">${s.total}</td>
+      <td style="color:var(--green)">${s.correct}</td>
+      <td style="color:var(--red)">${s.wrong}</td>
+      <td style="color:var(--gold)">${s.score.toFixed(2)}</td>
+      <td style="color:var(--blue)">${acc}%</td>
+    </tr>`;
+  }).join('');
+}
+
+function reviewMode() {
+  reviewModeOn = true;
+  document.getElementById('resultScreen').classList.remove('show');
+  goToQ(0);
+  highlightResult();
+}
+
+function highlightResult() {
+  if (!reviewModeOn) return;
+  const q = allQuestions[currentQ];
+  const opts = document.querySelectorAll('.option');
+  opts.forEach((el, oi) => {
+    el.classList.remove('correct', 'wrong', 'selected');
+    if (oi === q.correct_option) el.classList.add('correct');
+    if (answers[currentQ] !== undefined && answers[currentQ] === oi && oi !== q.correct_option)
+      el.classList.add('wrong');
+  });
+  const expEl = document.getElementById('explanation');
+  if (q.explanation) {
+    expEl.innerHTML = `<strong>Explanation:</strong> ${q.explanation}`;
+    expEl.classList.add('show');
+  }
+}
+
+// =====================================================
+// DEMO MOCK (shown when JSON file not found)
+// =====================================================
+function getDemoMock() {
+  return {
+    title: `Mock ${mockId} — SSC CGL`,
+    duration_minutes: 60,
+    sections: [
+      {
+        name: "General Intelligence",
+        positive_marks: 2,
+        negative_marks: 0.5,
+        questions: [
+          {
+            question: "In the following question, select the related word pair from the given alternatives.<br><br><strong>Doctor : Hospital :: Teacher : ?</strong>",
+            options: ["School", "University", "College", "Coaching"],
+            correct_option: 0,
+            explanation: "A Doctor works in a Hospital. Similarly, a Teacher works in a School."
+          },
+          {
+            question: "Find the odd one out: <strong>12, 21, 31, 44</strong>",
+            options: ["12", "21", "31", "44"],
+            correct_option: 2,
+            explanation: "12 = 3×4, 21 = 3×7, 44 = 4×11. 31 is a prime number and doesn't fit the multiplication pattern."
+          },
+          {
+            question: "If ROSE is coded as 6821 and CHAIR is coded as 73456, what is the code for SEARCH?",
+            options: ["214673", "246173", "214763", "216473"],
+            correct_option: 0,
+            explanation: "Using the letter-to-number mapping: S=2, E=1, A=4, R=6, C=7, H=3 → SEARCH = 214673"
+          }
+        ]
+      },
+      {
+        name: "Quantitative Aptitude",
+        positive_marks: 2,
+        negative_marks: 0.5,
+        questions: [
+          {
+            question: "A train 150 m long is running at a speed of 90 km/h. In what time will it pass a bridge of 250 m?",
+            options: ["14 sec", "16 sec", "15 sec", "12 sec"],
+            correct_option: 1,
+            explanation: "Total distance = 150 + 250 = 400 m. Speed = 90 × (5/18) = 25 m/s. Time = 400/25 = 16 seconds."
+          },
+          {
+            question: "If the compound interest on a sum for 2 years at 10% per annum is ₹2,100, what is the simple interest on the same sum at 10% for 2 years?",
+            options: ["₹2,000", "₹1,950", "₹2,100", "₹1,800"],
+            correct_option: 0,
+            explanation: "CI = P[(1+r)² - 1]. Let P = x. 2100 = x[(1.1)² - 1] = x × 0.21, so P = 10,000. SI = 10000 × 10/100 × 2 = ₹2,000."
+          }
+        ]
+      },
+      {
+        name: "English Language",
+        positive_marks: 2,
+        negative_marks: 0.5,
+        questions: [
+          {
+            question: "Select the most appropriate synonym of the word <strong>ELOQUENT</strong>.",
+            options: ["Fluent", "Silent", "Confused", "Blunt"],
+            correct_option: 0,
+            explanation: "Eloquent means fluent or persuasive in speaking or writing. Hence 'Fluent' is the correct synonym."
+          }
+        ]
+      },
+      {
+        name: "General Awareness",
+        positive_marks: 2,
+        negative_marks: 0.5,
+        questions: [
+          {
+            question: "Which article of the Indian Constitution deals with the Right to Education?",
+            options: ["Article 19", "Article 21A", "Article 32", "Article 45"],
+            correct_option: 1,
+            explanation: "Article 21A of the Indian Constitution provides the Right to Education as a fundamental right for children between 6–14 years of age, inserted by the 86th Constitutional Amendment Act, 2002."
+          }
+        ]
+      }
+    ]
+  };
+}
+
+// Start
+loadMock();
+</script>
+</body>
+</html>

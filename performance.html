@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Performance — SSC Scholars</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Pro:ital,wght@0,400;0,600&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #c9a84c;
+    --gold-light: #e8c96a;
+    --gold-dim: #8a6f30;
+    --bg: #07080f;
+    --bg2: #0d0f1c;
+    --surface: #141830;
+    --surface2: #1a2040;
+    --border: rgba(201,168,76,0.15);
+    --border-active: rgba(201,168,76,0.5);
+    --text: #d0d4e8;
+    --text-dim: #6a7099;
+    --green: #4caf7d;
+    --red: #e05c5c;
+    --blue: #5c9ae0;
+    --orange: #e08c3c;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Crimson Pro', Georgia, serif;
+    min-height: 100vh;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(201,168,76,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(201,168,76,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+  }
+
+  .wrapper { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 0 24px 60px; }
+
+  header {
+    padding: 48px 0 32px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .header-left h1 {
+    font-family: 'Cinzel', serif;
+    font-size: 24px;
+    color: var(--gold-light);
+    letter-spacing: 0.15em;
+    margin-bottom: 4px;
+  }
+
+  .header-left p {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+
+  nav {
+    display: flex;
+    gap: 8px;
+  }
+
+  nav a {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 8px 18px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    color: var(--text-dim);
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+  nav a:hover, nav a.active {
+    border-color: var(--border-active);
+    color: var(--gold);
+    background: rgba(201,168,76,0.05);
+  }
+
+  /* OVERVIEW CARDS */
+  .overview-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+    margin-bottom: 36px;
+  }
+
+  .ov-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 18px 16px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .ov-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    opacity: 0.5;
+  }
+
+  .ov-card.c-green::after { background: var(--green); }
+  .ov-card.c-red::after { background: var(--red); }
+  .ov-card.c-blue::after { background: var(--blue); }
+  .ov-card.c-gold::after { background: var(--gold); }
+  .ov-card.c-orange::after { background: var(--orange); }
+
+  .ov-val {
+    font-family: 'Cinzel', serif;
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+
+  .ov-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: var(--text-dim);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+
+  /* SECTION TITLE */
+  .sec-title {
+    font-family: 'Cinzel', serif;
+    font-size: 14px;
+    color: var(--gold);
+    letter-spacing: 0.15em;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .sec-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* SCORE CHART */
+  .chart-container {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px;
+    margin-bottom: 24px;
+    position: relative;
+  }
+
+  .chart-label-top {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: var(--text-dim);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .chart-area {
+    position: relative;
+    height: 200px;
+    overflow: hidden;
+  }
+
+  /* Y axis labels */
+  .y-labels {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 30px;
+    width: 36px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .y-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    color: var(--text-dim);
+    text-align: right;
+    line-height: 1;
+  }
+
+  .chart-inner {
+    position: absolute;
+    left: 44px;
+    right: 0;
+    top: 0;
+    bottom: 30px;
+  }
+
+  /* Gridlines */
+  .gridlines {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .gridline {
+    width: 100%;
+    height: 1px;
+    background: var(--border);
+    opacity: 0.5;
+  }
+
+  /* SVG Chart */
+  .score-svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+
+  /* X Labels */
+  .x-labels {
+    position: absolute;
+    left: 44px;
+    right: 0;
+    bottom: 0;
+    height: 28px;
+    display: flex;
+    align-items: center;
+  }
+
+  .x-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    color: var(--text-dim);
+    text-align: center;
+    position: absolute;
+    transform: translateX(-50%);
+  }
+
+  /* Tooltip */
+  .chart-tooltip {
+    position: absolute;
+    background: var(--surface2);
+    border: 1px solid var(--border-active);
+    border-radius: 6px;
+    padding: 8px 12px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    z-index: 10;
+    min-width: 100px;
+  }
+
+  .chart-tooltip.show { opacity: 1; }
+  .chart-tooltip .tt-name { color: var(--gold); margin-bottom: 4px; }
+  .chart-tooltip .tt-val { color: var(--text); }
+
+  /* ACCURACY BAR CHART */
+  .bar-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    height: 120px;
+    margin-top: 16px;
+  }
+
+  .bar-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    height: 100%;
+    justify-content: flex-end;
+  }
+
+  .bar-fill {
+    width: 100%;
+    border-radius: 3px 3px 0 0;
+    transition: height 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    min-height: 2px;
+    position: relative;
+  }
+
+  .bar-fill:hover::after {
+    content: attr(data-val);
+    position: absolute;
+    top: -22px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--surface2);
+    border: 1px solid var(--border-active);
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: var(--gold);
+    white-space: nowrap;
+  }
+
+  .bar-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8px;
+    color: var(--text-dim);
+    text-align: center;
+  }
+
+  /* HISTORY TABLE */
+  .history-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+
+  .history-table th {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+
+  .history-table td {
+    padding: 13px 14px;
+    border-bottom: 1px solid rgba(201,168,76,0.06);
+  }
+
+  .history-table tr:hover td {
+    background: rgba(201,168,76,0.02);
+  }
+
+  .history-table tr:last-child td { border-bottom: none; }
+
+  .rank-badge {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    padding: 2px 8px;
+    border-radius: 100px;
+    letter-spacing: 0.05em;
+  }
+
+  .rank-excellent { background: rgba(76,175,125,0.15); border: 1px solid rgba(76,175,125,0.4); color: var(--green); }
+  .rank-good { background: rgba(201,168,76,0.12); border: 1px solid rgba(201,168,76,0.3); color: var(--gold); }
+  .rank-average { background: rgba(92,154,224,0.12); border: 1px solid rgba(92,154,224,0.3); color: var(--blue); }
+  .rank-poor { background: rgba(224,92,92,0.1); border: 1px solid rgba(224,92,92,0.3); color: var(--red); }
+
+  /* SECTION ANALYSIS */
+  .section-analysis {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .sec-an-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 18px;
+  }
+
+  .sec-an-name {
+    font-family: 'Cinzel', serif;
+    font-size: 12px;
+    color: var(--gold);
+    letter-spacing: 0.1em;
+    margin-bottom: 14px;
+  }
+
+  .sec-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+
+  .sec-bar-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: var(--text-dim);
+    width: 56px;
+    flex-shrink: 0;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .sec-bar-track {
+    flex: 1;
+    height: 6px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .sec-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 1s ease;
+  }
+
+  .sec-bar-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: var(--text-dim);
+    width: 32px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  /* Empty state */
+  .empty-state {
+    text-align: center;
+    padding: 60px 0;
+  }
+
+  .empty-state .empty-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+    opacity: 0.3;
+  }
+
+  .empty-state h3 {
+    font-family: 'Cinzel', serif;
+    font-size: 18px;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+    margin-bottom: 8px;
+  }
+
+  .empty-state p {
+    font-size: 14px;
+    color: var(--text-dim);
+    margin-bottom: 20px;
+  }
+
+  .empty-state a {
+    display: inline-block;
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    padding: 10px 24px;
+    border: 1px solid var(--border-active);
+    border-radius: 5px;
+    color: var(--gold);
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+  .empty-state a:hover { background: rgba(201,168,76,0.1); }
+
+  /* Clear button */
+  .clear-btn {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    padding: 6px 14px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text-dim);
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+  .clear-btn:hover { border-color: var(--red); color: var(--red); }
+
+  @media (max-width: 768px) {
+    .overview-grid { grid-template-columns: repeat(3, 1fr); }
+    .section-analysis { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 480px) {
+    .overview-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <header>
+    <div class="header-left">
+      <h1>Performance Tracker</h1>
+      <p>SSC Scholars — Your Progress Dashboard</p>
+    </div>
+    <nav>
+      <a href="index.html">Mocks</a>
+      <a href="performance.html" class="active">Performance</a>
+    </nav>
+  </header>
+
+  <div id="emptyState" class="empty-state" style="display:none">
+    <div class="empty-icon">📊</div>
+    <h3>No Attempts Yet</h3>
+    <p>Attempt your first mock to see your performance analytics.</p>
+    <a href="index.html">Browse Mocks</a>
+  </div>
+
+  <div id="mainContent">
+
+    <!-- OVERVIEW -->
+    <div class="sec-title">Overview</div>
+    <div class="overview-grid">
+      <div class="ov-card c-gold">
+        <div class="ov-val" style="color:var(--gold-light)" id="ovAttempted">0</div>
+        <div class="ov-label">Attempted</div>
+      </div>
+      <div class="ov-card c-green">
+        <div class="ov-val" style="color:var(--green)" id="ovBest">—</div>
+        <div class="ov-label">Best Score</div>
+      </div>
+      <div class="ov-card c-blue">
+        <div class="ov-val" style="color:var(--blue)" id="ovAvg">—</div>
+        <div class="ov-label">Avg Score</div>
+      </div>
+      <div class="ov-card c-orange">
+        <div class="ov-val" style="color:var(--orange)" id="ovAccuracy">—</div>
+        <div class="ov-label">Avg Accuracy</div>
+      </div>
+      <div class="ov-card c-red">
+        <div class="ov-val" style="color:var(--red)" id="ovImprovement">—</div>
+        <div class="ov-label">Improvement</div>
+      </div>
+    </div>
+
+    <!-- SCORE TREND -->
+    <div class="sec-title">Score Trend</div>
+    <div class="chart-container">
+      <div class="chart-label-top">Score across attempts</div>
+      <div class="chart-area">
+        <div class="y-labels" id="yLabels"></div>
+        <div class="chart-inner">
+          <div class="gridlines" id="gridlines"></div>
+          <svg class="score-svg" id="scoreSvg" preserveAspectRatio="none"></svg>
+        </div>
+        <div class="x-labels" id="xLabels"></div>
+        <div class="chart-tooltip" id="chartTooltip"></div>
+      </div>
+    </div>
+
+    <!-- ACCURACY CHART -->
+    <div class="sec-title">Accuracy per Mock</div>
+    <div class="chart-container">
+      <div class="chart-label-top">Accuracy % per attempt</div>
+      <div class="bar-chart" id="barChart"></div>
+    </div>
+
+    <!-- SECTION ANALYSIS -->
+    <div class="sec-title">Section-wise Analysis</div>
+    <div class="section-analysis" id="sectionAnalysis"></div>
+
+    <!-- HISTORY -->
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
+      <div class="sec-title" style="margin-bottom:0; flex:1">Attempt History</div>
+      <button class="clear-btn" onclick="clearData()">Clear All Data</button>
+    </div>
+    <div style="background:var(--surface); border:1px solid var(--border); border-radius:10px; overflow:hidden; margin-bottom:24px;">
+      <table class="history-table">
+        <thead>
+          <tr>
+            <th>Mock</th>
+            <th>Date</th>
+            <th>Score</th>
+            <th>Correct</th>
+            <th>Wrong</th>
+            <th>Skipped</th>
+            <th>Accuracy</th>
+            <th>Time</th>
+            <th>Rating</th>
+          </tr>
+        </thead>
+        <tbody id="historyBody"></tbody>
+      </table>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+function getResults() {
+  try { return JSON.parse(localStorage.getItem('ssc_results') || '{}'); } catch { return {}; }
+}
+
+function renderAll() {
+  const raw = getResults();
+  const results = Object.values(raw).sort((a,b) => (a.timestamp||0) - (b.timestamp||0));
+
+  if (results.length === 0) {
+    document.getElementById('emptyState').style.display = 'block';
+    document.getElementById('mainContent').style.display = 'none';
+    return;
+  }
+
+  document.getElementById('emptyState').style.display = 'none';
+  document.getElementById('mainContent').style.display = 'block';
+
+  // Overview
+  const scores = results.map(r => r.score);
+  const accuracies = results.map(r => r.accuracy || 0);
+  const best = Math.max(...scores);
+  const avg = scores.reduce((a,b)=>a+b,0) / scores.length;
+  const avgAcc = accuracies.reduce((a,b)=>a+b,0) / accuracies.length;
+  const improvement = results.length >= 2 ? (scores[scores.length-1] - scores[0]).toFixed(1) : '—';
+
+  document.getElementById('ovAttempted').textContent = results.length;
+  document.getElementById('ovBest').textContent = best.toFixed(1);
+  document.getElementById('ovAvg').textContent = avg.toFixed(1);
+  document.getElementById('ovAccuracy').textContent = Math.round(avgAcc) + '%';
+  if (improvement !== '—') {
+    const el = document.getElementById('ovImprovement');
+    el.textContent = (improvement > 0 ? '+' : '') + improvement;
+    el.style.color = improvement >= 0 ? 'var(--green)' : 'var(--red)';
+  } else {
+    document.getElementById('ovImprovement').textContent = '—';
+  }
+
+  renderScoreChart(results, scores);
+  renderBarChart(results, accuracies);
+  renderSectionAnalysis(results);
+  renderHistory(results);
+}
+
+// =====================================================
+// SCORE TREND SVG CHART
+// =====================================================
+function renderScoreChart(results, scores) {
+  if (results.length < 1) return;
+  const svg = document.getElementById('scoreSvg');
+  const yLabels = document.getElementById('yLabels');
+  const xLabels = document.getElementById('xLabels');
+  const gridlines = document.getElementById('gridlines');
+
+  const minS = Math.min(...scores);
+  const maxS = Math.max(...scores);
+  const padding = (maxS - minS) * 0.1 || 10;
+  const low = Math.max(0, minS - padding);
+  const high = maxS + padding;
+  const range = high - low;
+
+  // Y labels
+  const steps = 5;
+  yLabels.innerHTML = '';
+  for (let i = steps; i >= 0; i--) {
+    const val = Math.round(low + (range * i / steps));
+    yLabels.innerHTML += `<div class="y-label">${val}</div>`;
+  }
+
+  // Gridlines
+  gridlines.innerHTML = '';
+  for (let i = 0; i <= steps; i++) gridlines.innerHTML += `<div class="gridline"></div>`;
+
+  // Points
+  const W = 1000, H = 200;
+  const pts = results.map((r, i) => {
+    const x = results.length === 1 ? W/2 : (i / (results.length - 1)) * W;
+    const y = H - ((r.score - low) / range) * H;
+    return { x, y, r };
+  });
+
+  // Build path
+  let d = `M ${pts[0].x} ${pts[0].y}`;
+  for (let i = 1; i < pts.length; i++) {
+    const cp1x = (pts[i-1].x + pts[i].x) / 2;
+    d += ` C ${cp1x} ${pts[i-1].y}, ${cp1x} ${pts[i].y}, ${pts[i].x} ${pts[i].y}`;
+  }
+
+  // Fill area
+  const fillPath = d + ` L ${pts[pts.length-1].x} ${H} L ${pts[0].x} ${H} Z`;
+
+  svg.innerHTML = `
+    <defs>
+      <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#c9a84c" stop-opacity="0.25"/>
+        <stop offset="100%" stop-color="#c9a84c" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+    <path d="${fillPath}" fill="url(#areaGrad)" stroke="none" vector-effect="non-scaling-stroke"/>
+    <path d="${d}" fill="none" stroke="#c9a84c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>
+    ${pts.map((p, i) => `
+      <circle cx="${p.x}" cy="${p.y}" r="4" fill="#c9a84c" stroke="#07080f" stroke-width="2"
+        style="cursor:pointer"
+        onmouseenter="showTip(event, '${p.r.mockName || 'Mock '+p.r.mockId}', '${p.r.score}', '${p.r.accuracy}%')"
+        onmouseleave="hideTip()"/>
+    `).join('')}
+  `;
+
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+
+  // X labels
+  xLabels.innerHTML = '';
+  pts.forEach((p, i) => {
+    const pct = W > 0 ? (p.x / W) * 100 : 50;
+    xLabels.innerHTML += `<div class="x-label" style="left:${pct}%">${p.r.mockId||i+1}</div>`;
+  });
+}
+
+function showTip(e, name, score, acc) {
+  const tip = document.getElementById('chartTooltip');
+  tip.innerHTML = `<div class="tt-name">${name}</div><div class="tt-val">Score: ${score}</div><div class="tt-val">Accuracy: ${acc}</div>`;
+  const rect = e.target.closest('.chart-area').getBoundingClientRect();
+  const ex = e.clientX - rect.left;
+  const ey = e.clientY - rect.top;
+  tip.style.left = Math.min(ex + 12, rect.width - 120) + 'px';
+  tip.style.top = Math.max(ey - 60, 0) + 'px';
+  tip.classList.add('show');
+}
+function hideTip() { document.getElementById('chartTooltip').classList.remove('show'); }
+
+// =====================================================
+// BAR CHART
+// =====================================================
+function renderBarChart(results, accuracies) {
+  const container = document.getElementById('barChart');
+  const maxAcc = Math.max(...accuracies, 1);
+  container.innerHTML = results.map((r, i) => {
+    const h = Math.round((r.accuracy / maxAcc) * 100);
+    const color = r.accuracy >= 80 ? 'var(--green)' : r.accuracy >= 60 ? 'var(--gold)' : r.accuracy >= 40 ? 'var(--blue)' : 'var(--red)';
+    return `<div class="bar-col">
+      <div class="bar-fill" style="height:${h}%;background:${color};width:100%" data-val="${r.accuracy}%"></div>
+      <div class="bar-label">M${r.mockId||i+1}</div>
+    </div>`;
+  }).join('');
+}
+
+// =====================================================
+// SECTION ANALYSIS
+// =====================================================
+function renderSectionAnalysis(results) {
+  // Aggregate per section name
+  const secMap = {};
+  results.forEach(r => {
+    if (!r.sectionStats) return;
+    r.sectionStats.forEach(s => {
+      if (!secMap[s.name]) secMap[s.name] = { correct: 0, wrong: 0, skipped: 0, total: 0 };
+      secMap[s.name].correct += s.correct;
+      secMap[s.name].wrong += s.wrong;
+      secMap[s.name].skipped += s.skipped;
+      secMap[s.name].total += s.total;
+    });
+  });
+
+  const container = document.getElementById('sectionAnalysis');
+  container.innerHTML = Object.entries(secMap).map(([name, data]) => {
+    const acc = data.total ? Math.round((data.correct / data.total) * 100) : 0;
+    const wPct = data.total ? Math.round((data.wrong / data.total) * 100) : 0;
+    const sPct = data.total ? Math.round((data.skipped / data.total) * 100) : 0;
+    return `<div class="sec-an-card">
+      <div class="sec-an-name">${name}</div>
+      <div class="sec-bar-row">
+        <div class="sec-bar-label">Correct</div>
+        <div class="sec-bar-track"><div class="sec-bar-fill" style="width:${acc}%;background:var(--green)"></div></div>
+        <div class="sec-bar-val" style="color:var(--green)">${acc}%</div>
+      </div>
+      <div class="sec-bar-row">
+        <div class="sec-bar-label">Wrong</div>
+        <div class="sec-bar-track"><div class="sec-bar-fill" style="width:${wPct}%;background:var(--red)"></div></div>
+        <div class="sec-bar-val" style="color:var(--red)">${wPct}%</div>
+      </div>
+      <div class="sec-bar-row">
+        <div class="sec-bar-label">Skipped</div>
+        <div class="sec-bar-track"><div class="sec-bar-fill" style="width:${sPct}%;background:var(--text-dim)"></div></div>
+        <div class="sec-bar-val">${sPct}%</div>
+      </div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-dim);margin-top:10px;letter-spacing:0.1em">
+        Total: ${data.total} &nbsp;|&nbsp; Correct: ${data.correct} &nbsp;|&nbsp; Wrong: ${data.wrong}
+      </div>
+    </div>`;
+  }).join('');
+
+  if (!container.innerHTML) {
+    container.innerHTML = '<div style="color:var(--text-dim);font-family:JetBrains Mono,monospace;font-size:11px;padding:16px;grid-column:span 2">Section data not available for these attempts.</div>';
+  }
+}
+
+// =====================================================
+// HISTORY TABLE
+// =====================================================
+function renderHistory(results) {
+  const tbody = document.getElementById('historyBody');
+  tbody.innerHTML = [...results].reverse().map(r => {
+    const mins = r.timeTaken ? Math.floor(r.timeTaken/60) + 'm ' + (r.timeTaken%60) + 's' : '—';
+    let rClass = 'rank-poor', rText = 'Poor';
+    if (r.accuracy >= 80) { rClass = 'rank-excellent'; rText = 'Excellent'; }
+    else if (r.accuracy >= 65) { rClass = 'rank-good'; rText = 'Good'; }
+    else if (r.accuracy >= 50) { rClass = 'rank-average'; rText = 'Average'; }
+    return `<tr>
+      <td style="color:var(--gold-light);font-family:'Cinzel',serif;font-size:13px;">${r.mockName || 'Mock '+r.mockId}</td>
+      <td style="color:var(--text-dim);font-family:'JetBrains Mono',monospace;font-size:10px;">${r.date || '—'}</td>
+      <td style="color:var(--gold);font-weight:600;">${r.score}</td>
+      <td style="color:var(--green)">${r.correct}</td>
+      <td style="color:var(--red)">${r.wrong}</td>
+      <td style="color:var(--text-dim)">${r.skipped}</td>
+      <td style="color:var(--blue)">${r.accuracy}%</td>
+      <td style="color:var(--text-dim);font-family:'JetBrains Mono',monospace;font-size:10px;">${mins}</td>
+      <td><span class="rank-badge ${rClass}">${rText}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function clearData() {
+  if (confirm('Clear all performance data? This cannot be undone.')) {
+    localStorage.removeItem('ssc_results');
+    renderAll();
+  }
+}
+
+renderAll();
+</script>
+</body>
+</html>
